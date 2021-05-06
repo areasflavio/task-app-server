@@ -1,0 +1,11 @@
+{
+  "name": "task-app-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:areasflavio/task-app-server.git",
+  "author": "Flávio Arêas <vflavio9@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "mongodb": "^3.6.6"
+  }
+}
