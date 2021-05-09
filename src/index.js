@@ -56,6 +56,51 @@ app.get('/users/:id', async (req, res) => {
   }
 });
 
+app.patch('/users/:id', async (req, res) => {
+  const { id } = req.params;
+
+  const updates = Object.keys(req.body);
+  const allowedUpdates = ['name', 'email', 'password', 'age'];
+  const isValidOperation = updates.every((update) =>
+    allowedUpdates.includes(update)
+  );
+
+  if (!isValidOperation) {
+    return res.status(400).json({ error: 'Invalid updates' });
+  }
+
+  try {
+    const user = await User.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    return res.json(user);
+  } catch (error) {
+    return res.status(500).json(error);
+  }
+});
+
+app.delete('/users/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findByIdAndDelete(id);
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    return res.json();
+  } catch (error) {
+    return res.status(500).json(error);
+  }
+});
+
 app.post('/tasks', async (req, res) => {
   const { description, completed } = req.body;
 
@@ -96,6 +141,35 @@ app.get('/tasks/:id', async (req, res) => {
   }
 });
 
+app.patch('/tasks/:id', async (req, res) => {
+  const { id } = req.params;
+
+  const updates = Object.keys(req.body);
+  const allowedUpdates = ['description', 'completed'];
+  const isValidOperation = updates.every((update) =>
+    allowedUpdates.includes(update)
+  );
+
+  if (!isValidOperation) {
+    return res.status(400).json({ error: 'Invalid updates' });
+  }
+
+  try {
+    const task = await Task.findByIdAndUpdate(id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!task) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+
+    return res.json(task);
+  } catch (error) {
+    return res.status(500).json(error);
+  }
+});
+
 app.delete('/tasks/:id', async (req, res) => {
   const { id } = req.params;
 
@@ -105,8 +179,6 @@ app.delete('/tasks/:id', async (req, res) => {
     if (!task) {
       return res.status(404).json({ error: 'Task not found' });
     }
-    const count = await Task.countDocuments({ completed: false });
-    console.log(count);
 
     return res.json();
   } catch (error) {
