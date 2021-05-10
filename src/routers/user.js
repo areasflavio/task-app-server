@@ -35,6 +35,32 @@ router.post('/users/login', async (req, res) => {
   }
 });
 
+router.post('/users/logout', authMiddleware, async (req, res) => {
+  try {
+    req.user.tokens = req.user.tokens.filter(
+      (token) => token.token !== req.token
+    );
+
+    await req.user.save();
+
+    return res.json();
+  } catch (error) {
+    return res.status(500).json(error);
+  }
+});
+
+router.post('/users/logoutAll', authMiddleware, async (req, res) => {
+  try {
+    req.user.tokens = [];
+
+    await req.user.save();
+
+    return res.json();
+  } catch (error) {
+    return res.status(500).json(error);
+  }
+});
+
 router.get('/users/me', authMiddleware, async (req, res) => {
   return res.json(req.user);
 });
