@@ -1,38 +1,41 @@
 const express = require('express');
 
 const Task = require('../models/Task');
+const authMiddleware = require('../middleware/auth');
 
 const router = new express.Router();
 
-router.post('/tasks', async (req, res) => {
+router.post('/tasks', authMiddleware, async (req, res) => {
   const { description, completed } = req.body;
+  const owner = req.user;
 
   try {
-    const task = new Task({ description, completed });
+    const task = new Task({ description, completed, owner });
 
     await task.save();
 
     return res.status(201).json(task);
   } catch (error) {
-    return res.status(400).json(error);
+    return res.status(400).json({ error: error.message });
   }
 });
 
-router.get('/tasks', async (req, res) => {
+router.get('/tasks', authMiddleware, async (req, res) => {
   try {
-    const tasks = await Task.find({});
+    const tasks = await Task.find({ owner: req.user._id });
 
     return res.json(tasks);
   } catch (error) {
-    return res.status(500).json(error);
+    return res.status(500).json({ error: error.message });
   }
 });
 
-router.get('/tasks/:id', async (req, res) => {
-  const { id } = req.params;
-
+router.get('/tasks/:id', authMiddleware, async (req, res) => {
   try {
-    const task = await Task.findById(id);
+    const task = await Task.findOne({
+      _id: req.params.id,
+      owner: req.user._id,
+    });
 
     if (!task) {
       return res.status(404).json({ error: 'Task not found' });
@@ -40,13 +43,11 @@ router.get('/tasks/:id', async (req, res) => {
 
     return res.json(task);
   } catch (error) {
-    return res.status(500).json(error);
+    return res.status(500).json({ error: error.message });
   }
 });
 
-router.patch('/tasks/:id', async (req, res) => {
-  const { id } = req.params;
-
+router.patch('/tasks/:id', authMiddleware, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ['description', 'completed'];
   const isValidOperation = updates.every((update) =>
@@ -58,27 +59,31 @@ router.patch('/tasks/:id', async (req, res) => {
   }
 
   try {
-    const task = await Task.findById(id);
-
-    updates.forEach((update) => (task[update] = req.body[update]));
-
-    await task.save();
+    const task = await Task.findOne({
+      _id: req.params.id,
+      owner: req.user._id,
+    });
 
     if (!task) {
       return res.status(404).json({ error: 'Task not found' });
     }
 
+    updates.forEach((update) => (task[update] = req.body[update]));
+
+    await task.save();
+
     return res.json(task);
   } catch (error) {
-    return res.status(500).json(error);
+    return res.status(500).json({ error: error.message });
   }
 });
 
-router.delete('/tasks/:id', async (req, res) => {
-  const { id } = req.params;
-
+router.delete('/tasks/:id', authMiddleware, async (req, res) => {
   try {
-    const task = await Task.findByIdAndDelete(id);
+    const task = await Task.findOneAndDelete({
+      _id: req.params.id,
+      owner: req.user._id,
+    });
 
     if (!task) {
       return res.status(404).json({ error: 'Task not found' });
@@ -86,7 +91,7 @@ router.delete('/tasks/:id', async (req, res) => {
 
     return res.json();
   } catch (error) {
-    return res.status(500).json(error);
+    return res.status(500).json({ error: error.message });
   }
 });
 

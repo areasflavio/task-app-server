@@ -17,7 +17,7 @@ router.post('/users', async (req, res) => {
 
     return res.status(201).json({ user, token });
   } catch (error) {
-    return res.status(400).json(error);
+    return res.status(400).json({ error: error.message });
   }
 });
 
@@ -31,7 +31,7 @@ router.post('/users/login', async (req, res) => {
 
     return res.json({ user, token });
   } catch (error) {
-    return res.status(400).json(error);
+    return res.status(400).json({ error: error.message });
   }
 });
 
@@ -45,7 +45,7 @@ router.post('/users/logout', authMiddleware, async (req, res) => {
 
     return res.json();
   } catch (error) {
-    return res.status(500).json(error);
+    return res.status(500).json({ error: error.message });
   }
 });
 
@@ -57,7 +57,7 @@ router.post('/users/logoutAll', authMiddleware, async (req, res) => {
 
     return res.json();
   } catch (error) {
-    return res.status(500).json(error);
+    return res.status(500).json({ error: error.message });
   }
 });
 
@@ -83,7 +83,7 @@ router.patch('/users/me', authMiddleware, async (req, res) => {
 
     return res.json(req.user);
   } catch (error) {
-    return res.status(500).json(error);
+    return res.status(500).json({ error: error.message });
   }
 });
 
@@ -93,7 +93,7 @@ router.delete('/users/me', authMiddleware, async (req, res) => {
 
     return res.json();
   } catch (error) {
-    return res.status(500).json(error);
+    return res.status(500).json({ error: error.message });
   }
 });
 
