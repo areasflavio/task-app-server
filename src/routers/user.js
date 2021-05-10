@@ -65,25 +65,7 @@ router.get('/users/me', authMiddleware, async (req, res) => {
   return res.json(req.user);
 });
 
-router.get('/users/:id', async (req, res) => {
-  const { id } = req.params;
-
-  try {
-    const user = await User.findById(id);
-
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    return res.json(user);
-  } catch (error) {
-    return res.status(500).json(error);
-  }
-});
-
-router.patch('/users/:id', async (req, res) => {
-  const { id } = req.params;
-
+router.patch('/users/me', authMiddleware, async (req, res) => {
   const updates = Object.keys(req.body);
   const allowedUpdates = ['name', 'email', 'password', 'age'];
   const isValidOperation = updates.every((update) =>
@@ -95,31 +77,19 @@ router.patch('/users/:id', async (req, res) => {
   }
 
   try {
-    const user = await User.findById(id);
+    updates.forEach((update) => (req.user[update] = req.body[update]));
 
-    updates.forEach((update) => (user[update] = req.body[update]));
+    await req.user.save();
 
-    await user.save();
-
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    return res.json(user);
+    return res.json(req.user);
   } catch (error) {
     return res.status(500).json(error);
   }
 });
 
-router.delete('/users/:id', async (req, res) => {
-  const { id } = req.params;
-
+router.delete('/users/me', authMiddleware, async (req, res) => {
   try {
-    const user = await User.findByIdAndDelete(id);
-
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
+    await req.user.remove();
 
     return res.json();
   } catch (error) {
