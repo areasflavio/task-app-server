@@ -8,7 +8,7 @@ const auth = async (req, res, next) => {
 
     const [_, token] = authHeader.split(' ');
 
-    const decoded = jwt.verify(token, 'task-manager');
+    const decoded = jwt.verify(token, process.env.SECRET);
 
     const user = await User.findOne({
       _id: decoded._id,
