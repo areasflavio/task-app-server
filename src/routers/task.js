@@ -21,8 +21,29 @@ router.post('/tasks', authMiddleware, async (req, res) => {
 });
 
 router.get('/tasks', authMiddleware, async (req, res) => {
+  const { completed, limit, skip, sortBy } = req.query;
+
+  let whereStatement = { owner: req.user._id };
+  let sortStatement = {};
+
+  if (completed) {
+    whereStatement = {
+      ...whereStatement,
+      completed,
+    };
+  }
+
+  if (sortBy) {
+    const [sortKey, sortValue] = sortBy.split(':');
+
+    sortStatement[sortKey] = sortValue;
+  }
+
   try {
-    const tasks = await Task.find({ owner: req.user._id });
+    const tasks = await Task.find(whereStatement)
+      .limit(parseInt(limit))
+      .skip(parseInt(skip))
+      .sort(sortStatement);
 
     return res.json(tasks);
   } catch (error) {
