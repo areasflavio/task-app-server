@@ -6,6 +6,9 @@ const sharp = require('sharp');
 const User = require('../models/User');
 const authMiddleware = require('../middleware/auth');
 
+const { sendMail } = require('../services/email/account');
+const { welcomeEmail, cancellationEmail } = require('../services/email/emails');
+
 const router = new express.Router();
 
 const upload = multer({
@@ -30,6 +33,8 @@ router.post('/users', async (req, res) => {
 
   try {
     await user.save();
+
+    await sendMail(welcomeEmail(email, name));
 
     const token = await user.generateAuthToken();
 
@@ -107,6 +112,8 @@ router.patch('/users/me', authMiddleware, async (req, res) => {
 
 router.delete('/users/me', authMiddleware, async (req, res) => {
   try {
+    await sendMail(cancellationEmail(req.user.email, req.user.name));
+
     await req.user.remove();
 
     return res.json();
