@@ -2,12 +2,10 @@
 
 This is the backend for a task/to-do app that was develop using NodeJS, Express and MongoDB.
 
-<p align="center">
-    You can see a hosted version of app on
-  <a href="https://areasflavio-task-app.herokuapp.com/"><br/>
-    <img alt="Heroku" src="https://img.shields.io/badge/heroku-%23430098.svg?&style=for-the-badge&logo=heroku&logoColor=white"/>
-  </a>
-</p>
+You can see a hosted version of app on
+<a href="https://areasflavio-task-app.herokuapp.com/" target="_blank" rel="noopener">
+<img alt="Heroku" src="https://img.shields.io/badge/heroku-%23430098.svg?&style=for-the-badge&logo=heroku&logoColor=white"/>
+</a>
 
 <p align="center">
   <a href="#installation">Installation</a>&nbsp;&nbsp;|&nbsp;&nbsp;
@@ -31,7 +29,7 @@ This is the backend for a task/to-do app that was develop using NodeJS, Express 
 
 # Installation
 
-[(Back to top)](#Task-App-Node)
+[(Back to top)](#Task-App-Server)
 
 To use this project, first you need NodeJS and MongoDB running in your device, then you can follow the commands below:
 
@@ -54,7 +52,7 @@ $ npm run dev
 
 # Technologies
 
-[(Back to top)](#Task-App-Node)
+[(Back to top)](#Task-App-Server)
 
 This is what i used and learned with this project:
 
@@ -72,7 +70,7 @@ This is what i used and learned with this project:
 
 # License
 
-[(Back to top)](#Task-App-Node)
+[(Back to top)](#Task-App-Server)
 
 This project is under the MIT license. See the [LICENSE](https://github.com/areasflavio/task-app-server/blob/main/LICENSE) for more information.
 
