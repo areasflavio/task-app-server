@@ -7,11 +7,6 @@ const { setupDatabase, userOne, userOneId } = require('./fixtures/db');
 
 beforeEach(setupDatabase);
 
-// Should not signup user with invalid name/email/password
-// Should not update user if unauthenticated
-// Should not update user with invalid name/email/password
-// Should not delete user if unauthenticated
-
 test('should sign up a new user', async () => {
   const response = await request(app)
     .post('/users')
@@ -108,6 +103,15 @@ test('should update valid user fields', async () => {
 
   const user = await User.findById(userOneId);
   expect(user.name).toEqual('Flávio Augusto');
+});
+
+test('should not update unauthenticated user', async () => {
+  await request(app)
+    .patch('/users/me')
+    .send({
+      name: 'Flávio Augusto',
+    })
+    .expect(401);
 });
 
 test('should not update invalid user fields', async () => {
