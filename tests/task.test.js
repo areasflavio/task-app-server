@@ -3,29 +3,9 @@ const request = require('supertest');
 const app = require('../src/app');
 const Task = require('../src/models/Task');
 
-const {
-  setupDatabase,
-  userOne,
-  userOneId,
-  userTwo,
-  userTwoId,
-  taskOne,
-} = require('./fixtures/db');
+const { setupDatabase, userOne, userTwo, taskOne } = require('./fixtures/db');
 
 beforeEach(setupDatabase);
-
-// Should not create task with invalid description/completed
-// Should not update task with invalid description/completed
-// Should delete user task
-// Should not delete task if unauthenticated
-// Should not update other users task
-// Should fetch user task by id
-// Should not fetch user task by id if unauthenticated
-// Should not fetch other users task by id
-// Should fetch only completed tasks
-// Should fetch only incomplete tasks
-// Should sort tasks by description/completed/createdAt/updatedAt
-// Should fetch page of tasks
 
 test('should create task for user', async () => {
   const response = await request(app)
@@ -51,6 +31,54 @@ test('should fetch user tasks', async () => {
   expect(response.body.length).toEqual(2);
 });
 
+test('should fetch user tasks by id', async () => {
+  const response = await request(app)
+    .get(`/tasks/${taskOne._id}`)
+    .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
+    .send()
+    .expect(200);
+
+  expect(JSON.stringify(response.body._id)).toStrictEqual(
+    JSON.stringify(taskOne._id)
+  );
+});
+
+test('should not fetch user tasks by id for unauthenticated user', async () => {
+  await request(app).get(`/tasks/${taskOne._id}`).send().expect(401);
+});
+
+test('should not fetch task by id from another user', async () => {
+  await request(app)
+    .get(`/tasks/${taskOne._id}`)
+    .set('Authorization', `Bearer ${userTwo.tokens[0].token}`)
+    .send()
+    .expect(404);
+});
+
+test('should fetch only completed tasks', async () => {
+  const response = await request(app)
+    .get(`/tasks?completed=true`)
+    .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
+    .send()
+    .expect(200);
+
+  expect(response.body[0]).toMatchObject({
+    completed: true,
+  });
+});
+
+test('should fetch only incomplete tasks', async () => {
+  const response = await request(app)
+    .get(`/tasks?completed=false`)
+    .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
+    .send()
+    .expect(200);
+
+  expect(response.body[0]).toMatchObject({
+    completed: false,
+  });
+});
+
 test('should delete user task', async () => {
   await request(app)
     .delete(`/tasks/${taskOne._id}`)
@@ -71,4 +99,28 @@ test('should not delete task from another user', async () => {
 
   const task = await Task.findById(taskOne._id);
   expect(task).not.toBeNull();
+});
+
+test('should update user task', async () => {
+  const response = await request(app)
+    .patch(`/tasks/${taskOne._id}`)
+    .set('Authorization', `Bearer ${userOne.tokens[0].token}`)
+    .send({
+      completed: true,
+    })
+    .expect(200);
+
+  expect(response.body).toMatchObject({
+    completed: true,
+  });
+});
+
+test('should not update task from another user', async () => {
+  await request(app)
+    .patch(`/tasks/${taskOne._id}`)
+    .set('Authorization', `Bearer ${userTwo.tokens[0].token}`)
+    .send({
+      completed: true,
+    })
+    .expect(404);
 });
