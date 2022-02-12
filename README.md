@@ -276,6 +276,12 @@ cp .env.example .env
 npm run dev
 ```
 
+# :memo: License
+
+[(Back to top)](#Task-App-Server)
+
+This project is under the MIT license. See the [LICENSE](https://github.com/areasflavio/task-app-server/blob/main/LICENSE) for more information.
+
 # :man_technologist: Author
 
 [(Back to top)](#Task-App-Server)
